@@ -1,15 +1,7 @@
 const { responseHelper } = require('../../helpers');
+const  sendmail  = require('../../utils/email');
 const adminService = require('./admin.service');
-
-exports.newUser = async(req,res,next) => {
-    try {
-        const { body } = req;
-        const response = await adminService.addUser(body);
-        return responseHelper.success(res,response);
-    } catch (err) {
-        next(err);
-    }
-};
+const logger = require('../../utils/logger');
 
 exports.basicAuth = async(req,res,next) => {
     const authheader = req.headers.authorization;
@@ -31,4 +23,40 @@ exports.basicAuth = async(req,res,next) => {
     if (data === true) {
         next();
     }
+};
+
+exports.newUser = async(req,res,next) => {
+    try {
+        const { body } = req;
+        const response = await adminService.addUser(body);
+        return responseHelper.success(res,response);
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.sendInvite = async(req,res,next) => {
+   try {
+    const message = 'You or someone on your behalf requested to sign-up with StandardC. By pressing the link below, you opt-in to sign-up with StandardC.This link will expire after 1 day';
+    const html = `<!doctype html>
+    <html ⚡4email>
+      <head>
+        <meta charset="utf-8">
+      </head>
+      <body>
+        <p><b>Follow the invitation link to register.</p>
+        <a href="https://jsonplaceholder.typicode.com/users">Click Here!</a>
+      </body>
+    </html>`;
+    await sendmail({
+        email : req.body.email,
+        subject : 'Welcome to StandardC',
+        message,
+        html
+    });
+    responseHelper.success(res);
+    logger.info('Invite sent successfully');
+   } catch (err){
+    next(err);
+   }
 };
