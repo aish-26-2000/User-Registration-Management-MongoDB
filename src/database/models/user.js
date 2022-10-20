@@ -16,7 +16,6 @@ const UserSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: true,
         },
         address :{
             country : {
@@ -36,12 +35,10 @@ const UserSchema = new mongoose.Schema(
             },
             street_name : {
                 type : String
-            },
-            required : true
+            }
         },
         phone : {
             type : Number,
-            required : true
         }
     },
     { timestamps: true }

@@ -10,7 +10,7 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "linebreak-style": ["error", "windows"],
+        "linebreak-style": ["error", "WINDOWS"],
         "semi": ["error", "always"],
         "no-console": "error",
         "no-unused-vars": "error"

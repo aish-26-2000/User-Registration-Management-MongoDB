@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const { logger } = require('./src/utils');
 const { errorHandler } = require('./src/helpers');
+const routes = require('./src/routes');
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(
 app.use(express.json({ limit: '50mb' }));
 app.use(morgan('[:date[web]] :method :url :status :response-time ms - :res[content-length]'));
 
-//app.use('/api/v1', routes);
+app.use('/api/v1', routes);
 
 app.use(errorHandler);
 
