@@ -1,12 +1,14 @@
-const { User } = require('../../database/models');
+const { Invite, User } = require('../../database/models');
 
-exports.addUser = async(user) => {
+exports.addInvite = async(user) => {
+    const newInvite = new Invite(user);
     const newUser = new User(user);
-    const response = await newUser.save();
+    await newUser.save();
+    const response = await newInvite.save();
     return {
         id : response._id,
-        firstName : response.firstName,
-        lastNameame : response.lastName
+        name : response.name,
+        email : response.email
     };
 };
 
@@ -20,3 +22,4 @@ exports.authCheck = (username,password) => {
         return null;
     }
 };
+

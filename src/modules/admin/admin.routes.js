@@ -4,7 +4,6 @@ const adminController = require('./admin.controller');
 const router = express.Router();
 
 router.use(adminController.basicAuth);
-router.post('/adduser', adminController.newUser);
 router.post('/invite',adminController.sendInvite);
 
 module.exports = router;

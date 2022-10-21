@@ -2,6 +2,8 @@ const { responseHelper } = require('../../helpers');
 const  sendmail  = require('../../utils/email');
 const adminService = require('./admin.service');
 const logger = require('../../utils/logger');
+const jwt = require('../../utils/jwt');
+
 
 exports.basicAuth = async(req,res,next) => {
     const authheader = req.headers.authorization;
@@ -25,38 +27,46 @@ exports.basicAuth = async(req,res,next) => {
     }
 };
 
-exports.newUser = async(req,res,next) => {
-    try {
-        const { body } = req;
-        const response = await adminService.addUser(body);
-        return responseHelper.success(res,response);
-    } catch (err) {
-        next(err);
-    }
-};
 
 exports.sendInvite = async(req,res,next) => {
    try {
-    const message = 'You or someone on your behalf requested to sign-up with StandardC. By pressing the link below, you opt-in to sign-up with StandardC.This link will expire after 1 day';
-    const html = `<!doctype html>
-    <html ⚡4email>
-      <head>
-        <meta charset="utf-8">
-      </head>
-      <body>
-        <p><b>Follow the invitation link to register.</p>
-        <a href="https://jsonplaceholder.typicode.com/users">Click Here!</a>
-      </body>
-    </html>`;
-    await sendmail({
-        email : req.body.email,
-        subject : 'Welcome to StandardC',
-        message,
-        html
-    });
-    responseHelper.success(res);
-    logger.info('Invite sent successfully');
-   } catch (err){
-    next(err);
-   }
+        //add invite to db
+        const { body } = req;
+        await adminService.addInvite(body);
+
+        //generate accesstoken and URL
+        const accessToken = jwt.generateAccessToken(req.body.email);
+        const registerURL = `${req.protocol}://${req.get('host')}/api/v1/user/register/${accessToken}`;
+
+        //compose email
+        const message = `Submit a POST request with all your details to:\n${registerURL}`
+        const html = `<!doctype html>
+        <html ⚡4email>
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            <p>Hi, Greetings from StandardC! </p>
+            <p>You or someone on your behalf requested to sign-up with StandardC. By pressing the link , you opt-in to sign-up with StandardC.</p>
+            <br>Submit a POST request with all your details to:
+            <p> <a href=${registerURL}> Register Now </a></p>
+            <br>This link will expire after 1 day
+        </body>
+        </html>`;
+
+        //send invitation email
+        await sendmail({
+            email : req.body.email,
+            subject : 'Welcome to StandardC',
+            html,
+            message
+        });
+
+        //response
+        responseHelper.success(res);
+        logger.info('Invite sent successfully');
+
+    } catch (err){
+        next(err);
+    }
 };
