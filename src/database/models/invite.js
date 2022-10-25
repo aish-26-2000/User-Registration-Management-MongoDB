@@ -9,7 +9,12 @@ const InviteSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
+            unique : true
+        },
+        regStatus : {
+            type : String,
+            enum : ['pending','completed'],
+            default : 'pending'
         }
     },
     { timestamps: true }

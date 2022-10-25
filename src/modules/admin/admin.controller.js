@@ -64,8 +64,6 @@ exports.sendInvite = async(req,res,next) => {
 
         //response
         responseHelper.success(res);
-        logger.info('Invite sent successfully');
-
     } catch (err){
         next(err);
     }

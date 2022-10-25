@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { bcrypt,jwt } = require('../../utils');
 
 const UserSchema = new mongoose.Schema(
     {
@@ -11,7 +12,7 @@ const UserSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
+            unique : true
         },
         password: {
             type: String,
@@ -38,9 +39,24 @@ const UserSchema = new mongoose.Schema(
         },
         phone : {
             type : Number,
-        }
+        },
+        userRegisteredAt : Date,
+        userRegisterToken : String,
+        userRegExpires : Date,
+
     },
     { timestamps: true }
 );
+
+// Password encryption
+UserSchema.pre('save', async function (next) {
+    const user = this;
+
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hashPassword(user.password);
+    }
+
+    next();
+});
 
 module.exports = mongoose.model('User', UserSchema);

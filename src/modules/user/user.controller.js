@@ -1,24 +1,40 @@
-const { response } = require('../../../app');
 const { responseHelper } = require('../../helpers');
+const { bcrypt } = require('../../utils')
 const userService = require('./user.service');
 
 exports.Register = async(req,res,next) => {
     try {
-        const email = req.body.email;
-        const user = userService.getUser(email)
+        const { body } = req;
+        //find user
+        const user = await userService.getUser(body.email)
         if(user) {
-            const info = {
-                firstName : req.body.firstName,
-                lastName : req.body.lastName,
-                password : req.body.password,
-                passwordConfirm : req.body.passwordConfirm
+            //check reg status
+            const status = await userService.checkRegStatus(body.email)
+
+            //user already registered
+            if(status === true) {
+                responseHelper.fail(res,'User already registered'); 
+                
+            //user reg pending
+            } else {
+                //validate password
+                const passwordCheck = await userService.validatePassword(body.password,body.passwordConfirm)
+                if( passwordCheck === true) {
+                    //body.password = bcrypt.hashPassword(body.password);
+                    const userData = await userService.addUserInfo(body.email,body)
+                    responseHelper.success(res,userData,'User registered successfully');
+                }
+                else {
+                    responseHelper.fail(res,'Check password again');
+                }
             };
-            const data = userService.addUserInfo(email,info)
-            responseHelper.success(res,data,'User registered successfully');
-        } else{
-            responseHelper.noContent(res);
-        }
+
+        //user not found
+        } else {
+            responseHelper.fail(res,'User not found');            
+        }        
     } catch(err) {
         next(err);
     }
-;} 
+}; 
+
