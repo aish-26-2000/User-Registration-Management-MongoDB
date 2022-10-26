@@ -18,3 +18,7 @@ exports.generateAccessToken = (payload) => {
         expiresIn :  CONSTANTS.JWT.JWT_EXPIRES_IN
     });
 };
+
+exports.parseToken = (token) => {
+    const t = jwt.decode(token)
+};

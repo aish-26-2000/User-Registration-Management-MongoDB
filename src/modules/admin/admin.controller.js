@@ -68,3 +68,23 @@ exports.sendInvite = async(req,res,next) => {
         next(err);
     }
 };
+
+exports.restrictUser = async(req,res,next) => {
+    try {
+        const email = req.body.email;
+        await adminService.restrict(email);
+        responseHelper.success(res);
+    } catch(err) {
+        next(err);
+    }
+};
+
+exports.unrestrictUser = async(req,res,next) => {
+    try {
+        const email = req.body.email;
+        await adminService.unrestrict(email);
+        responseHelper.success(res);
+    } catch(err) {
+        next(err);
+    }
+};

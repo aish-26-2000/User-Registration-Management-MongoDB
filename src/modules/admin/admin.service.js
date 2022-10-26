@@ -23,3 +23,18 @@ exports.authCheck = (username,password) => {
     }
 };
 
+exports.restrict = async(e) => {
+        await User.findOneAndUpdate(
+            {email : e},
+            {active : false},
+            {new : true}
+        );
+};
+
+exports.unrestrict = async(e) => {
+    await User.findOneAndUpdate(
+        {email : e},
+        {active : true},
+        {new : true}
+    );
+};

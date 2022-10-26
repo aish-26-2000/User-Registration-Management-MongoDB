@@ -41,22 +41,13 @@ const UserSchema = new mongoose.Schema(
             type : Number,
         },
         userRegisteredAt : Date,
-        userRegisterToken : String,
-        userRegExpires : Date,
-
+        active : {
+            type : Boolean,
+            default : true,
+            select : false
+        }
     },
     { timestamps: true }
 );
-
-// Password encryption
-UserSchema.pre('save', async function (next) {
-    const user = this;
-
-    if (user.isModified('password')) {
-        user.password = await bcrypt.hashPassword(user.password);
-    }
-
-    next();
-});
 
 module.exports = mongoose.model('User', UserSchema);

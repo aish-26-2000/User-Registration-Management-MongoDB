@@ -5,5 +5,8 @@ const router = express.Router();
 
 router.use(adminController.basicAuth);
 router.post('/invite',adminController.sendInvite);
+router.post('/restrict',adminController.restrictUser);
+router.post('/unrestrict',adminController.unrestrictUser);
+
 
 module.exports = router;
