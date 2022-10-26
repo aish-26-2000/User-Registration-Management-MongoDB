@@ -15,7 +15,11 @@ exports.checkRegStatus = async(e) => {
 };
 
 exports.getUser = async(e) => {
-    return User.findOne({email : e})
+    const user = await Invite.findOne({email : e})
+    if( Boolean(user.active) !== true) {
+        throw new UnauthorizedException('Access denied');
+    }    
+    return User.findOne({email : e});
 };
 
 exports.addUserInfo = async(e,info) => {

@@ -40,12 +40,7 @@ const UserSchema = new mongoose.Schema(
         phone : {
             type : Number,
         },
-        userRegisteredAt : Date,
-        active : {
-            type : Boolean,
-            default : true,
-            select : false
-        }
+        userRegisteredAt : Date
     },
     { timestamps: true }
 );

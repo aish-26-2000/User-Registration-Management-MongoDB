@@ -24,7 +24,7 @@ exports.authCheck = (username,password) => {
 };
 
 exports.restrict = async(e) => {
-        await User.findOneAndUpdate(
+        await Invite.findOneAndUpdate(
             {email : e},
             {active : false},
             {new : true}
@@ -32,7 +32,7 @@ exports.restrict = async(e) => {
 };
 
 exports.unrestrict = async(e) => {
-    await User.findOneAndUpdate(
+    await Invite.findOneAndUpdate(
         {email : e},
         {active : true},
         {new : true}

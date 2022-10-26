@@ -50,9 +50,11 @@ exports.Register = async(req,res,next) => {
 
 exports.login =  async(req,res,next) => {
     try {
+        
         const { body } = req;
         const response = await userService.login(body);
         return responseHelper.success(res,response);
+
     } catch(err) {
         next(err);
     }

@@ -15,7 +15,10 @@ const InviteSchema = new mongoose.Schema(
             type : String,
             enum : ['pending','completed'],
             default : 'pending'
-        }
+        },
+        active : {
+            type : Boolean,
+            default : true        }
     },
     { timestamps: true }
 );
