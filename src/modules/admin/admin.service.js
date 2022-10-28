@@ -1,4 +1,4 @@
-const { Invite, User } = require('../../database/models');
+const { Invite, User, Summary } = require('../../database/models');
 
 exports.addInvite = async(user) => {
     const newInvite = new Invite(user);
@@ -37,4 +37,15 @@ exports.unrestrict = async(e) => {
         {active : true},
         {new : true}
     );
+};
+
+exports.removeUser = async(e) => {
+    await Invite.findOneAndDelete(
+        {email : e},
+        {new :  true}
+    )
+    await User.findOneAndDelete(
+        {email : e},
+        {new :  true}
+    )
 };

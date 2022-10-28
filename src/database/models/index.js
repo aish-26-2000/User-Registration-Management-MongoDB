@@ -4,5 +4,4 @@ const invite = require('./invite');
 module.exports = {
     User: user,
     Invite : invite
-
 };
