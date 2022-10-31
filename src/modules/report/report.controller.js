@@ -1,24 +1,41 @@
 const cron = require('node-cron');
+const date = require('date-fns');
+const { User, Invite } = require('../../database/models');
 const sendEmail = require('../../utils/email');
-const service = require('./report.service');
 
-//count
-const inviteCount = service.inviteCount();
-const userCount = service.userCount();
-const regUserCount =  service.regUserCount();
-const awaitingUserCount =  service.awaitingUserCount();
-const activeUserCount =  service.activeUserCount();
+//get date 
+const startOfDay = date.startOfDay(new Date());
+const endOfDay = date.endOfDay(new Date());
+const today = { $gte: startOfDay, $lte: endOfDay };
 
+//count function
+const count = async(model) => {
+    const n = await model.count({createdAt : today});
+    return n;
+};
 
-const message = `This is an auto-generated email.\nStandardC User Registration Report \n\nDated On:${new Date()} \n 
+//filter function
+const filter = async(model,filter) => {
+    const n = await model.count(filter);
+    return n;
+};
+
+//send email
+exports.autoReport =  async() => {
+    const inviteCount = await count(Invite);
+    const userCount = await count(User);
+    const regUserCount = await filter(Invite,{regStatus : "completed",createdAt : today });
+    const awaitingUserCount = await filter(Invite,{regStatus : "pending",createdAt : today});
+    const activeUserCount = await filter(Invite,{active : true,createdAt : today});
+
+    const message = `This is an auto-generated email.\nStandardC User Registration Report \n\nDated On:${new Date()} \n 
                 Invite Mails : ${inviteCount} \n
-                Users : ${ userCount} \n
+                Users : ${userCount} \n
                 Registered Users : ${ regUserCount } \n
                 Awaiting Users : ${ awaitingUserCount } \n
                 Active Users : ${ activeUserCount }` 
 
-//send email
-exports.autoReport =  async() => {
+
     cron.schedule('15 * * * * *',async() => {
         await sendEmail({
             from :'no-reply@standardc.com' ,
