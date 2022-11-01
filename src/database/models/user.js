@@ -40,7 +40,9 @@ const UserSchema = new mongoose.Schema(
         phone : {
             type : Number,
         },
-        userRegisteredAt : Date
+        imageURL : {
+            type : String
+        }
     },
     { timestamps: true }
 );

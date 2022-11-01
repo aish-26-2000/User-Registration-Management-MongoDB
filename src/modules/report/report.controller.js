@@ -22,6 +22,7 @@ const filter = async(model,filter) => {
 
 //send email
 exports.autoReport =  async() => {
+    //counts
     const inviteCount = await count(Invite);
     const userCount = await count(User);
     const regUserCount = await filter(Invite,{regStatus : "completed",createdAt : today });
@@ -35,8 +36,8 @@ exports.autoReport =  async() => {
                 Awaiting Users : ${ awaitingUserCount } \n
                 Active Users : ${ activeUserCount }` 
 
-
-    cron.schedule('15 * * * * *',async() => {
+    //scheduled on 23.55 everyday
+    cron.schedule('00 55 23 * * *',async() => {
         await sendEmail({
             from :'no-reply@standardc.com' ,
             to : 'ADMIN <admin@standardc.com>',
