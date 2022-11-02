@@ -27,6 +27,20 @@ exports.upload = async(file,key) => {
     return data.Location;
 }; 
 
+//check for object
+exports.searchObj = async(key) => {
+    return s3.headObject({
+        Bucket : CONSTANTS.S3.S3_BUCKET,
+        Key : key
+    }, (err) => {
+        if(err) {
+            return false;
+        } else {
+            return true;
+        }
+    });
+};
+
 //access the private object
 exports.getAccessURL = async(key) => {
     const url = await s3.getSignedUrlPromise('getObject',{
@@ -35,6 +49,7 @@ exports.getAccessURL = async(key) => {
         Expires : 60
     });
     return url;
+
 };
 
 //delete the image

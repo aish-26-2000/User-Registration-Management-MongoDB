@@ -2,6 +2,7 @@ const { responseHelper } = require('../../helpers');
 const  sendmail  = require('../../utils/email');
 const adminService = require('./admin.service');
 const jwt = require('../../utils/jwt');
+const { User } = require('../../database/models');
 
 
 exports.basicAuth = async(req,res,next) => {
@@ -132,4 +133,14 @@ exports.resendInvite = async(req,res,next) => {
     } catch(err) {
         next(err);
     }
+};
+
+exports.userDetails = async(req,res,next) => {
+    try {
+        const email = req.body.email;
+        const details = await adminService.getUserInfo(email);
+        responseHelper.success(res,details,'User Details fetched successfully.')
+    } catch(err) {
+        next(err);
+    };
 };

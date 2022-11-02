@@ -1,4 +1,5 @@
-const { Invite, User, Summary } = require('../../database/models');
+const { Invite, User } = require('../../database/models');
+const { getAccessURL, searchObj } = require('../../utils/s3helper');
 
 exports.addInvite = async(user) => {
     const newInvite = new Invite(user);
@@ -48,4 +49,20 @@ exports.removeUser = async(e) => {
         {email : e},
         {new :  true}
     )
+};
+
+exports.getUserInfo = async(email) => {
+    const data = await User.findOne({email : email})
+    const status = await Invite.findOne({email : email})
+    const url = await getAccessURL(email)
+    return {
+        _id : data._id,
+        active : status.active,
+        registration_status : status.regStatus,
+        firstName : data.firstName,
+        lastName : data.lastName,
+        email : data.email,
+        phone : data.phone,
+        imageURL : url
+    };
 };
