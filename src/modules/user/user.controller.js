@@ -2,11 +2,12 @@ const { responseHelper } = require('../../helpers');
 const { bcrypt,jwt } = require('../../utils')
 const userService = require('./user.service');
 const bucket = require('../../utils/s3helper');
+const { decode } = require('jsonwebtoken');
 
 exports.Register = async(req,res,next) => {
     try {
         const token = req.params.token;
-        const email = req.body.email;
+        const email = jwt.parseToken(token);
         //verify token
         await jwt.verifyToken(token);
 
@@ -29,14 +30,16 @@ exports.Register = async(req,res,next) => {
                         const key = email.substring(0, email. lastIndexOf('@'));
 
                         if(img.mimetype === 'image/jpeg') {
+
                             await bucket.upload(img,key);
                             await userService.addImageKey(email,key);
                             //user details
                             const userData = await userService.addUserInfo(email,req.body);
                             responseHelper.success(res,userData,'User registered successfully');  
+                        
                         } else {
                             responseHelper.fail(res,'Check content type of the file')
-                        }
+                        };
                     };              
         }; 
          
@@ -56,3 +59,4 @@ exports.login =  async(req,res,next) => {
         next(responseHelper.fail(res,`${err}`));
     }
 };
+

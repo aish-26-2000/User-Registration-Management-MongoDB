@@ -13,12 +13,13 @@ exports.verifyToken = (token) => {
     });
 };
 
-exports.generateAccessToken = (payload) => {
-    return jwt.sign({ ...payload }, CONSTANTS.JWT.JWT_SECRET,{
+exports.generateAccessToken = (email) => {
+    return jwt.sign({email}, CONSTANTS.JWT.JWT_SECRET,{
         expiresIn :  CONSTANTS.JWT.JWT_EXPIRES_IN
     });
 };
 
 exports.parseToken = (token) => {
-    const t = jwt.decode(token)
+    const decoded = jwt.decode(token);
+    return decoded.email;
 };

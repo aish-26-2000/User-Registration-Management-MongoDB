@@ -25,6 +25,6 @@ module.exports = (schema) => (req, res, next) => {
         next();
     } catch (error) {
         //throw new UnHandledException(error);
-        responseHelper.fail(res,`Validation error, Check inputs again.`)
+        next(responseHelper.fail(res,`${err}`));
     }
 };
