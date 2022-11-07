@@ -37,7 +37,7 @@ exports.autoReport =  async() => {
                 Active Users : ${ activeUserCount }` 
 
     //scheduled on 23.55 everyday
-    cron.schedule('00 55 23 * * *',async() => {
+    cron.schedule('00 01 * * * *',async() => {
         await sendEmail({
             from :'no-reply@standardc.com' ,
             to : 'ADMIN <admin@standardc.com>',

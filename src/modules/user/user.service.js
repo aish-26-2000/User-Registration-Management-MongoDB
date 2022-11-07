@@ -1,39 +1,34 @@
 const { User,Invite } = require('../../database/models');
 const { BadRequestException,UnauthorizedException } = require('../../helpers/errorResponse');
 
-exports.validatePassword = async(password,passwordConfirm) => {
-    if(password === passwordConfirm) {
-        return true;
-    }
-}
-
-exports.checkRegStatus = async(e) => {
-    const user = await Invite.findOne({email : e})
-    if(user.regStatus === 'completed') {
-        return true;
-    }
-};
-
 exports.getUser = async(e) => {
     const user = await Invite.findOne({email : e})
     if( (user.active) !== true) {
         throw new UnauthorizedException('Access denied');
-    }    
+    };
+    if(user.regStatus === 'completed') {
+        throw new UnauthorizedException('User already exists');
+    }  
     return User.findOne({email : e});
+;}
+
+exports.addImageKey = async(e,key) => {
+    await User.findOneAndUpdate({email : e},{imageKey : key},{new : true});
 };
 
 exports.addUserInfo = async(e,info) => {
-        const userInfo = await User.findOneAndUpdate({email : e},info,{new : true});
-        await User.findOneAndUpdate({email : e},{userRegisteredAt : Date.now()},{new:true})
-        await Invite.findOneAndUpdate({email : e},{regStatus : 'completed'},{new :  true});
-
-        return { 
-            _id : userInfo._id,
-            firstName : userInfo.firstName,
-            lastName : userInfo.lastName,
-            email : userInfo.email,
-            phone : userInfo.phone,
-        };
+    await User.findOneAndUpdate({email : e},info,{new : true});
+    const userInfo = await User.findOneAndUpdate({email : e},{userRegisteredAt : Date.now()},{new:true})
+    await Invite.findOneAndUpdate({email : e},{regStatus : 'completed'},{new :  true});
+    
+    return { 
+        _id : userInfo._id,
+        firstName : userInfo.firstName,
+        lastName : userInfo.lastName,
+        email : userInfo.email,
+        phone : userInfo.phone,
+        imageKey : userInfo.imageKey
+    };
 };
 
 exports.login = async (params) => {

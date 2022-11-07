@@ -2,7 +2,6 @@ const { responseHelper } = require('../../helpers');
 const  sendmail  = require('../../utils/email');
 const adminService = require('./admin.service');
 const jwt = require('../../utils/jwt');
-const { User } = require('../../database/models');
 
 
 exports.basicAuth = async(req,res,next) => {
@@ -31,8 +30,7 @@ exports.basicAuth = async(req,res,next) => {
 exports.sendInvite = async(req,res,next) => {
    try {
         //add invite to db
-        const { body } = req;
-        await adminService.addInvite(body);
+        await adminService.addInvite(req.body.email);
 
         //generate accesstoken and URL
         const accessToken = jwt.generateAccessToken(req.body.email);
@@ -64,10 +62,10 @@ exports.sendInvite = async(req,res,next) => {
         });
         
         //response
-        responseHelper.success(res,`Invite sent successfully to user ${body.email}`);
+        responseHelper.success(res,`Invite sent successfully to user ${req.body.email}`);
         
     } catch (err){
-        next(err);
+        next(responseHelper.fail(res,`${err}`));
     }
 };
 
@@ -77,7 +75,7 @@ exports.restrictUser = async(req,res,next) => {
         await adminService.restrict(email);
         responseHelper.success(res,`User (${email}) restricted successfully.`);
     } catch(err) {
-        next(err);
+        next(responseHelper.fail(res,`${err}`));
     }
 };
 
@@ -87,20 +85,20 @@ exports.unrestrictUser = async(req,res,next) => {
         await adminService.unrestrict(email);
         responseHelper.success(res,`User (${email}) unrestricted successfully.`);
     } catch(err) {
-        next(err);
+        next(responseHelper.fail(res,`${err}`));
     }
 };
 
 exports.resendInvite = async(req,res,next) => {
     try {
-        const { body } =req;
-        await adminService.removeUser(body.email);
+        const email = req.body.email;
+        await adminService.removeUser(email);
 
         //add invite to db
-        await adminService.addInvite(body);
+        await adminService.addInvite(email);
 
         //generate accesstoken and URL
-        const accessToken = jwt.generateAccessToken(req.body.email);
+        const accessToken = jwt.generateAccessToken(email);
         const registerURL = `${req.protocol}://${req.get('host')}/api/v1/user/register/${accessToken}`;
 
         //compose email
@@ -122,16 +120,16 @@ exports.resendInvite = async(req,res,next) => {
         //send invitation email
         await sendmail({
             from : 'ADMIN <admin@standardc.com>',
-            to : req.body.email,
+            to : email,
             subject : 'Welcome to StandardC',
             html,
             message
         });
         
         //response
-        responseHelper.success(res,`Invite resent successfully to user ${body.email}`);
+        responseHelper.success(res,`Invite resent successfully to user ${email}`);
     } catch(err) {
-        next(err);
+        next(responseHelper.fail(res,`${err}`));
     }
 };
 
@@ -141,6 +139,6 @@ exports.userDetails = async(req,res,next) => {
         const details = await adminService.getUserInfo(email);
         responseHelper.success(res,details,'User Details fetched successfully.')
     } catch(err) {
-        next(err);
+        next(responseHelper.fail(res,`${err}`));
     };
 };

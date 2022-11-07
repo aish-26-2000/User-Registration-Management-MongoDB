@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema(
         phone : {
             type : Number,
         },
-        imageURL : {
+        imageKey : {
             type : String
         }
     },

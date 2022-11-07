@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const { nextDay } = require('date-fns');
 const fs = require('fs');
 const { CONSTANTS } = require('../config');
 
@@ -14,42 +15,43 @@ const s3 = new AWS.S3(s3Config);
 
 //upload file
 exports.upload = async(file,key) => {
-    //setting s3 parameters
-    const params = {
-        Bucket : CONSTANTS.S3.S3_BUCKET,
-        Key : key,
-        Body : file.data,
-        ContentType : file.mimetype
-    };
+    try {
+            //setting s3 parameters
+            const params = {
+                Bucket : CONSTANTS.S3.S3_BUCKET,
+                Key : key,
+                Body : file.data,
+                ContentType : 'image/jpeg'
+            };
 
-    //uploading files to bucket
-    const data = await s3.upload(params).promise();
-    return data.Location;
+            //uploading files to bucket
+            const data = await s3.upload(params).promise();
+            return data.Location;
+    } catch(err) {
+      err;  
+    }
 }; 
-
-//check for object
-exports.searchObj = async(key) => {
-    return s3.headObject({
-        Bucket : CONSTANTS.S3.S3_BUCKET,
-        Key : key
-    }, (err) => {
-        if(err) {
-            return false;
-        } else {
-            return true;
-        }
-    });
-};
 
 //access the private object
 exports.getAccessURL = async(key) => {
-    const url = await s3.getSignedUrlPromise('getObject',{
-        Bucket : CONSTANTS.S3.S3_BUCKET,
-        Key : key,
-        Expires : 60
-    });
-    return url;
-
+    try{
+        const params = {
+            Bucket : CONSTANTS.S3.S3_BUCKET,
+            Key : key
+        }
+        //check if obj exists in the bucket
+        await s3.headObject(params).promise();
+        const url = await s3.getSignedUrlPromise('getObject',{
+            Bucket : CONSTANTS.S3.S3_BUCKET,
+            Key : key,
+            Expires : 60
+        });
+        return url;
+    } catch(err) {
+        if(err.name === 'NotFound') {
+            return null;
+        }
+    }
 };
 
 //delete the image

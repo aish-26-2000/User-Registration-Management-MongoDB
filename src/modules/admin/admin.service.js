@@ -1,14 +1,13 @@
 const { Invite, User } = require('../../database/models');
 const { getAccessURL, searchObj } = require('../../utils/s3helper');
 
-exports.addInvite = async(user) => {
-    const newInvite = new Invite(user);
-    const newUser = new User(user);
+exports.addInvite = async(data) => {
+    const newInvite = new Invite({email : data})
+    const response = await newInvite.save()
+    const newUser = new User({email : data})
     await newUser.save();
-    const response = await newInvite.save();
     return {
         id : response._id,
-        name : response.name,
         email : response.email
     };
 };
@@ -25,11 +24,14 @@ exports.authCheck = (username,password) => {
 };
 
 exports.restrict = async(e) => {
+    const user = Invite.findOne({email : e})
+    if(user !== null) {
         await Invite.findOneAndUpdate(
             {email : e},
             {active : false},
             {new : true}
         );
+    }
 };
 
 exports.unrestrict = async(e) => {
@@ -54,7 +56,7 @@ exports.removeUser = async(e) => {
 exports.getUserInfo = async(email) => {
     const data = await User.findOne({email : email})
     const status = await Invite.findOne({email : email})
-    const url = await getAccessURL(email)
+    const url = await getAccessURL(data.imageKey)
     return {
         _id : data._id,
         active : status.active,
