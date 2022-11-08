@@ -133,6 +133,27 @@ exports.resendInvite = async(req,res,next) => {
     }
 };
 
+exports.userList = async(req,res,next) => {
+    try {
+       const { page,limit,sort_column,sort_order } = req.query;
+       const skip = (page - 1) * limit;
+       const count = await adminService.count();
+       const totalPages = Math.ceil(count / limit);
+
+       const users = await adminService.getAllUsers(skip,limit,sort_column,sort_order)
+       const response = {
+        title : 'List of Users',
+        totalPages : totalPages,
+        currentPage : page,
+        limit : limit,
+        list : users 
+       }
+       responseHelper.success(res,response,'Users List');
+    } catch(err) {
+        next(responseHelper.fail(res,`${err}`));
+    }
+};
+
 exports.userDetails = async(req,res,next) => {
     try {
         const email = req.body.email;

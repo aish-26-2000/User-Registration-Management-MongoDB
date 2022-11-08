@@ -51,6 +51,21 @@ exports.removeUser = async(e) => {
         {email : e},
         {new :  true}
     )
+}; 
+
+exports.count = async() => {
+   const users =  await User.find()
+   const count = users.length;
+   return count;
+};
+
+exports.getAllUsers = async(skip,limit,sort_column,sort_order) => {
+    const users = await User.find()
+        .select(["_id","firstName","lastName","email","phone","createdAt"])
+        .sort({[sort_column]:sort_order})
+        .skip(skip)
+        .limit(limit)
+    return users;
 };
 
 exports.getUserInfo = async(email) => {

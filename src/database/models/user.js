@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
         },
         password: {
             type: String,
+            select : false
         },
         address :{
             country : {
@@ -44,7 +45,8 @@ const UserSchema = new mongoose.Schema(
             type : String
         }
     },
-    { timestamps: true }
+    { timestamps: true },
+    { versionKey : false }
 );
 
 module.exports = mongoose.model('User', UserSchema);

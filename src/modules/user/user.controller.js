@@ -2,7 +2,6 @@ const { responseHelper } = require('../../helpers');
 const { bcrypt,jwt } = require('../../utils')
 const userService = require('./user.service');
 const bucket = require('../../utils/s3helper');
-const { decode } = require('jsonwebtoken');
 
 exports.Register = async(req,res,next) => {
     try {
@@ -32,19 +31,21 @@ exports.Register = async(req,res,next) => {
                         if(img.mimetype === 'image/jpeg') {
 
                             await bucket.upload(img,key);
-                            await userService.addImageKey(email,key);
-                            //user details
-                            const userData = await userService.addUserInfo(email,req.body);
-                            responseHelper.success(res,userData,'User registered successfully');  
+                            await userService.addImageKey(email,key); 
                         
                         } else {
                             responseHelper.fail(res,'Check content type of the file')
                         };
-                    };              
+                    ;}
+                    //user details
+                    const userData = await userService.addUserInfo(email,req.body);
+                    responseHelper.success(res,userData,'User registered successfully'); 
+
         }; 
          
-    } catch(err) {
-        next(responseHelper.fail(res,`${err}`));
+    } catch(error) {
+        next(error);
+        //next(responseHelper.fail(res,`${err}`));
     }
 }; 
 
@@ -59,4 +60,5 @@ exports.login =  async(req,res,next) => {
         next(responseHelper.fail(res,`${err}`));
     }
 };
+
 
