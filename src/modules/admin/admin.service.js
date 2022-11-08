@@ -59,8 +59,12 @@ exports.count = async() => {
    return count;
 };
 
-exports.getAllUsers = async(skip,limit,sort_column,sort_order) => {
-    const users = await User.find()
+exports.getAllUsers = async(skip,limit,sort_column,sort_order,query) => {
+    const users = await User.find().or([
+        {"firstName" : { "$regex" : query, "$options": "i"}},
+        {"lastName" : { "$regex" : query, "$options": "i"}},
+        {"email" : { "$regex" : query, "$options": "i"}}
+        ])
         .select(["_id","firstName","lastName","email","phone","createdAt"])
         .sort({[sort_column]:sort_order})
         .skip(skip)

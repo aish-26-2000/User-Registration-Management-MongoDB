@@ -135,12 +135,12 @@ exports.resendInvite = async(req,res,next) => {
 
 exports.userList = async(req,res,next) => {
     try {
-       const { page,limit,sort_column,sort_order } = req.query;
+       const { page,limit,sort_column,sort_order,query } = req.query;
        const skip = (page - 1) * limit;
        const count = await adminService.count();
        const totalPages = Math.ceil(count / limit);
 
-       const users = await adminService.getAllUsers(skip,limit,sort_column,sort_order)
+       const users = await adminService.getAllUsers(skip,limit,sort_column,sort_order,query)
        const response = {
         title : 'List of Users',
         totalPages : totalPages,
