@@ -1,7 +1,7 @@
 const { User,Invite } = require('../../database/models');
 const { BadRequestException,UnauthorizedException } = require('../../helpers/errorResponse');
 
-exports.getUser = async(e) => {
+exports.findUser = async(e) => {
     const user = await Invite.findOne({email : e})
     if( (user.active) !== true) {
         throw new UnauthorizedException('Access denied');
@@ -9,14 +9,15 @@ exports.getUser = async(e) => {
     if(user.regStatus === 'completed') {
         throw new UnauthorizedException('User already exists');
     }  
-    return User.findOne({email : e});
+    return user;
 ;}
 
 exports.addImageKey = async(e,key) => {
     await User.findOneAndUpdate({email : e},{imageKey : key},{new : true});
 };
 
-exports.addUserInfo = async(e,info) => {
+exports.addUser = async(e,info) => {
+    await User.create({email : e});
     await User.findOneAndUpdate({email : e},info,{new : true});
     const userInfo = await User.findOneAndUpdate({email : e},{userRegisteredAt : Date.now()},{new:true})
     await Invite.findOneAndUpdate({email : e},{regStatus : 'completed'},{new :  true});

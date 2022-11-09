@@ -3,7 +3,6 @@ const  sendmail  = require('../../utils/email');
 const adminService = require('./admin.service');
 const jwt = require('../../utils/jwt');
 
-
 exports.basicAuth = async(req,res,next) => {
     const authheader = req.headers.authorization;
     
@@ -72,8 +71,11 @@ exports.sendInvite = async(req,res,next) => {
 exports.restrictUser = async(req,res,next) => {
     try {
         const email = req.body.email;
+
         await adminService.restrict(email);
+
         responseHelper.success(res,`User (${email}) restricted successfully.`);
+
     } catch(err) {
         next(responseHelper.fail(res,`${err}`));
     }
@@ -82,8 +84,11 @@ exports.restrictUser = async(req,res,next) => {
 exports.unrestrictUser = async(req,res,next) => {
     try {
         const email = req.body.email;
+
         await adminService.unrestrict(email);
+
         responseHelper.success(res,`User (${email}) unrestricted successfully.`);
+
     } catch(err) {
         next(responseHelper.fail(res,`${err}`));
     }
@@ -135,20 +140,17 @@ exports.resendInvite = async(req,res,next) => {
 
 exports.userList = async(req,res,next) => {
     try {
-       const { page,limit,sort_column,sort_order,query } = req.query;
-       const skip = (page - 1) * limit;
-       const count = await adminService.count();
-       const totalPages = Math.ceil(count / limit);
+        const { page,limit,sort_column,sort_order,query } = req.query;
 
-       const users = await adminService.getAllUsers(skip,limit,sort_column,sort_order,query)
-       const response = {
-        title : 'List of Users',
-        totalPages : totalPages,
-        currentPage : page,
-        limit : limit,
-        list : users 
-       }
-       responseHelper.success(res,response,'Users List');
+        const users = await adminService.getAllUsers(page || 1,limit || 3,sort_column,sort_order,query)
+        if(users){
+            responseHelper.success(res,users,'Users List');
+        };
+
+        if(!users){
+            responseHelper.fail(res,'Error, Data not found');
+        };
+
     } catch(err) {
         next(responseHelper.fail(res,`${err}`));
     }
@@ -156,10 +158,35 @@ exports.userList = async(req,res,next) => {
 
 exports.userDetails = async(req,res,next) => {
     try {
-        const email = req.body.email;
-        const details = await adminService.getUserInfo(email);
-        responseHelper.success(res,details,'User Details fetched successfully.')
+        const email = req.query.email;
+        const details = await adminService.getUserInfo(email)
+
+        if(details){
+            responseHelper.success(res,details,'User Details fetched successfully.')
+        };
+
+        if(!details){
+            responseHelper.fail(res,'Error, Check inputs and try again.')
+        };
+
     } catch(err) {
+        next(responseHelper.fail(res,`${err}`));
+    };
+};
+
+exports.userHistory = async(req,res,next) => {
+    try{
+        const email = req.query.email;
+        const details = await adminService.getUserHistory(email)
+
+        if(details){
+            responseHelper.success(res,details,'User Status.')
+        };
+
+        if(!details){
+            responseHelper.fail(res,'Error, Check inputs and try again.')
+        };
+    } catch(err){
         next(responseHelper.fail(res,`${err}`));
     };
 };

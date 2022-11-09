@@ -4,11 +4,9 @@ const { UnHandledException, PreconditionException } = require('../helpers/errorR
 const options = {
     basic: {
         abortEarly: false,
-        convert: true,
     },
     array: {
         abortEarly: false,
-        convert: true,
     },
 };
 
@@ -25,6 +23,6 @@ module.exports = (schema) => (req, res, next) => {
         next();
     } catch (error) {
         //throw new UnHandledException(error);
-        next(responseHelper.fail(res,`${err}`));
+        next(responseHelper.fail(res,`${error}`));
     }
 };

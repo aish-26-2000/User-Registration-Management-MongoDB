@@ -11,7 +11,7 @@ exports.Register = async(req,res,next) => {
         await jwt.verifyToken(token);
 
         //find user
-        const user = await userService.getUser(email)
+        const user = await userService.findUser(email)
 
         if(!user) {
             responseHelper.fail(res,'User not found');            
@@ -38,7 +38,7 @@ exports.Register = async(req,res,next) => {
                         };
                     ;}
                     //user details
-                    const userData = await userService.addUserInfo(email,req.body);
+                    const userData = await userService.addUser(email,req.body);
                     responseHelper.success(res,userData,'User registered successfully'); 
 
         }; 

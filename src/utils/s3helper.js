@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const { nextDay } = require('date-fns');
 const fs = require('fs');
 const { CONSTANTS } = require('../config');
+const { responseHelper } = require('../helpers');
 
 //initialize S3 instance
 const s3Config = {
@@ -46,11 +47,18 @@ exports.getAccessURL = async(key) => {
             Key : key,
             Expires : 60
         });
-        return url;
+        if(url) {
+            return url;
+        } 
+        if(!url) {
+            responseHelper.fail(res,'Something went Wrong');
+        }
+
     } catch(err) {
         if(err.name === 'NotFound') {
             return null;
         }
+        responseHelper.fail(res,err);
     }
 };
 
